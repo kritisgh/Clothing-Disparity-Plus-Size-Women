@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 from pathlib import Path
+from urllib.parse import urlparse
 
 import requests
 import cv2
@@ -10,13 +11,14 @@ from PIL import Image
 def download_images(json_path, images_dir):
     """
     Reads a JSON array of URLs (strings),
-    downloads each image, and saves them as JPGs.
+    filters to image URLs, downloads each image, and saves them as JPGs.
     """
     Path(images_dir).mkdir(exist_ok=True)
     with open(json_path, 'r') as f:
         data = json.load(f)
 
     for i, item in enumerate(data):
+        # Determine URL from string or object
         if isinstance(item, str):
             url = item
         else:
@@ -24,10 +26,18 @@ def download_images(json_path, images_dir):
         if not url:
             print(f"[!] No URL for entry {i}, skipping.")
             continue
+
+        # Filter: only process URLs with image file extensions
+        parsed = urlparse(url)
+        ext = Path(parsed.path).suffix.lower()
+        if ext not in ['.jpg', '.jpeg', '.png', '.bmp', '.tiff']:
+            print(f"[!] Skipping non-image URL: {url}")
+            continue
+
         try:
             resp = requests.get(url, timeout=10)
             resp.raise_for_status()
-            fname = images_dir / f"{i:03d}.jpg"
+            fname = images_dir / f"{i:03d}{ext}"
             with open(fname, "wb") as out:
                 out.write(resp.content)
             print(f"[↓] Downloaded {fname.name}")
@@ -36,13 +46,16 @@ def download_images(json_path, images_dir):
 
 def create_masks(images_dir, masks_dir, threshold=200, kernel_size=(15,15)):
     """
-    Converts each image to grayscale, thresholds it to
-    separate the dress from a white background, and applies
-    closing to fill holes.
+    Converts each downloaded image to grayscale, applies thresholding
+    to separate the dress from a white background, and performs
+    morphological closing to fill holes.
     """
     Path(masks_dir).mkdir(exist_ok=True)
-    for img_path in sorted(images_dir.glob("*.jpg")):
+    for img_path in sorted(images_dir.glob("*.*")):
         img = cv2.imread(str(img_path))
+        if img is None:
+            print(f"[!] Failed to read image, skipping: {img_path.name}")
+            continue
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         _, mask = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY_INV)
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, kernel_size)
@@ -51,23 +64,31 @@ def create_masks(images_dir, masks_dir, threshold=200, kernel_size=(15,15)):
         cv2.imwrite(str(out_path), mask)
         print(f"[✔] Mask saved: {out_path.name}")
 
-def create_outlines(masks_dir, outlines_dir, low_thresh=50, high_thresh=150):
+def create_outlines(masks_dir, outlines_dir, low_thresh=50, high_thresh=150, grey_val=180, opacity=0.8):
     """
-    Runs Canny edge detection on each mask to get
+    Runs Canny edge detection on each mask to extract
     a pure outline, then writes out as RGBA PNG
-    (white lines on transparent).
+    using grey lines at given opacity.
     """
     Path(outlines_dir).mkdir(exist_ok=True)
-    for mask_path in sorted(masks_dir.glob("*.png")):
+    alpha_val = int(255 * opacity)
+    for mask_path in sorted(masks_dir.glob("*_mask.png")):
         mask = cv2.imread(str(mask_path), cv2.IMREAD_GRAYSCALE)
+        if mask is None:
+            print(f"[!] Failed to read mask, skipping: {mask_path.name}")
+            continue
+        # detect edges
         edges = cv2.Canny(mask, low_thresh, high_thresh)
         h, w = edges.shape
+        # prepare RGBA canvas with grey lines
         rgba = np.zeros((h, w, 4), dtype=np.uint8)
-        rgba[..., :3] = 255
-        rgba[..., 3] = edges
+        rgba[..., :3] = grey_val  # grey color
+        # edges are 255 where line; convert to opacity
+        line_mask = edges > 0
+        rgba[..., 3] = line_mask.astype(np.uint8) * alpha_val
         out_path = outlines_dir / f"{mask_path.stem}_outline.png"
         cv2.imwrite(str(out_path), rgba)
-        print(f"[✔] Outline saved: {out_path.name}")
+        print(f"[✔] Outline saved: {out_path.name} (grey, {int(opacity*100)}% opacity)")
 
 def stack_outlines(outlines_dir, output_path, canvas_size=None):
     """
@@ -77,6 +98,7 @@ def stack_outlines(outlines_dir, output_path, canvas_size=None):
     if not files:
         print("[!] No outlines found, aborting.")
         return
+
     first = Image.open(files[0])
     w, h = canvas_size or first.size
     base = Image.new("RGBA", (w, h), (255,255,255,0))
@@ -89,11 +111,11 @@ def stack_outlines(outlines_dir, output_path, canvas_size=None):
     print(f"[★] Stacked silhouettes saved to {output_path}")
 
 def main():
-    json_path    = Path("justproduct.json")     # your JSON of URLs
-    images_dir   = Path("imagesproducts")
-    masks_dir    = Path("masksproducts")
-    outlines_dir = Path("outlines")
-    output_path  = Path("stacked_silhouettes.png")
+    json_path    = Path("plusimg.json")    # JSON array of URLs
+    images_dir   = Path("imagespeople")
+    masks_dir    = Path("maskspeople")
+    outlines_dir = Path("outlines_people")
+    output_path  = Path("stacked_silhouettespeople.png")
 
     download_images(json_path, images_dir)
     create_masks(images_dir, masks_dir)

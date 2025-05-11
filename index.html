@@ -1,13 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>NYT-Style Image Carousel</title>
-  <link rel="stylesheet" href="css/styles_json.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Silhouette Reveal Animation</title>
+  <style>
+    .stack-container {
+      position: relative;
+      width: 600px;    /* adjust to match your images */
+      height: 800px;   /* adjust to match your images */
+      margin: 40px auto;
+      background: transparent;
+      overflow: hidden;
+    }
+    .stack-container img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: auto;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    h2 {
+      text-align: center;
+      font-family: sans-serif;
+    }
+  </style>
 </head>
 <body>
-  <div id="carousel" class="carousel"></div>
-  <script src="js/carousel_json.js"></script>
+  <h2>Outline Silhouettes</h2>
+  <div id="container-outlines" class="stack-container"></div>
+
+  <h2>People Silhouettes</h2>
+  <div id="container-people" class="stack-container"></div>
+
+  <script>
+    const revealDelay = 1000; // ms between reveals
+
+    // Animates a stack in the given container using the provided URL list
+    function animateStack(containerId, imageUrls) {
+      const container = document.getElementById(containerId);
+      imageUrls.forEach((url, i) => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.zIndex = i;
+        container.appendChild(img);
+        setTimeout(() => {
+          img.style.opacity = 1;
+        }, revealDelay * i);
+      });
+    }
+
+    // Helper: load a manifest JSON and build full URLs
+    async function loadUrls(manifestPath, folder) {
+      const resp = await fetch(manifestPath);
+      if (!resp.ok) throw new Error(`Failed to load ${manifestPath}`);
+      const files = await resp.json();           // e.g. ["000_outline.png", ...]
+      return files.map(fn => `${folder}/${fn}`); // e.g. "outlines/000_outline.png"
+    }
+
+    // Load both manifests in parallel, then animate
+    Promise.all([
+      loadUrls('outlines.json', 'outlines'),
+      loadUrls('outlines_people.json', 'outlines_people')
+    ]).then(([outlinesUrls, peopleUrls]) => {
+      animateStack('container-outlines', outlinesUrls);
+      animateStack('container-people', peopleUrls);
+    }).catch(err => {
+      console.error(err);
+    });
+  </script>
 </body>
 </html>
