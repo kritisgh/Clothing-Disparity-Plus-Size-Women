@@ -1,0 +1,42 @@
+:root {
+  --slice-width:        50px;
+  --strip-height:      200px;
+  --carousel-max-width:1200px;  /* whatever max-width you prefer */
+  --carousel-padding:   16px;   /* space on left/right */
+}
+
+.carousel {
+  display: flex;
+  overflow-x: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  gap: 0;
+
+  /* center & constrain */
+  max-width: var(--carousel-max-width);
+  margin: 0 auto;
+  padding: 0 var(--carousel-padding);
+}
+
+.strip {
+  position: relative;
+  width: var(--slice-width);
+  height: var(--strip-height);
+  overflow: hidden;
+  flex: none;
+  background: transparent;
+  transition: width 0.3s ease;
+  will-change: width;
+}
+
+.strip img.full {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  width: auto;
+  transition: left 0.3s ease;
+  will-change: left;
+  max-width: 100vw;
+}
