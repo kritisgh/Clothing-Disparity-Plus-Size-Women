@@ -21,39 +21,37 @@ def get_all_image_urls(soup):
     """
     urls = []
     for img in soup.select("ul.ImageGrid_imageGrid__0lrrn img"):
-        # try lowercase/camelCase srcset
         srcset = img.get("srcset") or img.get("srcSet") or ""
         if srcset:
             parts = [p.strip() for p in srcset.split(",") if p.strip()]
-            # look for the 493w entry
-            chosen = None
-            for entry in parts:
-                if "493w" in entry:
-                    chosen = entry.split()[0]
-                    break
-            # fallback to first entry if no 493w
+            chosen = next((p.split()[0] for p in parts if "493w" in p), None)
             if not chosen and parts:
                 chosen = parts[0].split()[0]
             if chosen:
                 urls.append(chosen)
                 continue
-        # if no srcset at all, fallback to src
         src = img.get("src") or ""
         if src:
             urls.append(src)
     return urls
 
 def main():
-    # 1) load product URLs
+    # load product URLs
     with open(LINKS_CSV, newline="", encoding="utf-8") as f:
         reader = csv.reader(f)
         next(reader, None)  # skip header
         product_urls = [row[0] for row in reader if row]
 
-    # 2) open output CSV
+    # open output CSV
     with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as out:
         writer = csv.writer(out)
-        writer.writerow(["Product URL", "Image URLs", "Second Last Image URL"])
+        # added "Second Image URL" before "Second Last Image URL"
+        writer.writerow([
+            "Product URL",
+            "Image URLs",
+            "Second Image URL",
+            "Second Last Image URL"
+        ])
 
         for url in product_urls:
             try:
@@ -61,21 +59,19 @@ def main():
                 resp.raise_for_status()
                 soup = BeautifulSoup(resp.text, "html.parser")
 
-                all_imgs = get_all_image_urls(soup)
-                # join all image URLs into one cell
-                joined = ",".join(all_imgs)
-                # pick the second-last URL if it exists
-                second_last = all_imgs[-2] if len(all_imgs) >= 2 else ""
+                all_imgs   = get_all_image_urls(soup)
+                joined     = ",".join(all_imgs)
+                second_img = all_imgs[1] if len(all_imgs) >= 2 else ""
+                second_last= all_imgs[-2] if len(all_imgs) >= 2 else ""
 
-                writer.writerow([url, joined, second_last])
-                print(f"✅ {url} → {len(all_imgs)} images, 2nd-last: {second_last or '[none]'}")
+                writer.writerow([url, joined, second_img, second_last])
+                print(f"✅ {url} → total {len(all_imgs)}, 2nd: {second_img or '[none]'}, 2nd-last: {second_last or '[none]'}")
 
             except Exception as e:
-                # on error, write empty image-cells and log
-                writer.writerow([url, "", ""])
+                writer.writerow([url, "", "", ""])
                 print(f"❌ {url} → ERROR: {e}")
 
-    print(f"\nDone! Wrote image URLs (and second-last) to {OUTPUT_CSV}")
+    print(f"\nDone! Wrote image URLs (with 2nd & 2nd-last) to {OUTPUT_CSV}")
 
 if __name__ == "__main__":
     main()
