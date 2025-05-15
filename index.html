@@ -2,17 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>NYT-Style Image Carousel</title>
+  <title>NYT-Style Two Carousels</title>
   <link rel="stylesheet" href="css/styles_json.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
 <body>
-  <!-- Link to the silhouette animation page -->
   <p style="text-align:center; margin:1em;">
     <a href="silhouette.html">View Silhouette Trace Animation</a>
   </p>
 
+  <!-- FIRST carousel (CSV → js/carousel_csv.js) -->
+  <h2>CSV-Driven Carousel</h2>
   <div id="carousel" class="carousel"></div>
-  <script src="js/carousel_json.js"></script>
+
+  <!-- SECOND carousel (JSONL → js/carousel_jsonl.js) -->
+  <h2>JSONL-Driven Carousel</h2>
+  <div id="carousel_json" class="carousel"></div>
+
+  <!-- your existing CSV carousel script -->
+  <script src="js/carousel_csv.js"></script>
+  <!-- new JSONL carousel script -->
+  <script src="js/carousel_jsonl.js"></script>
 </body>
 </html>
