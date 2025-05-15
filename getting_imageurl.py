@@ -53,7 +53,7 @@ def main():
     # 2) open output CSV
     with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as out:
         writer = csv.writer(out)
-        writer.writerow(["Product URL", "Image URLs"])
+        writer.writerow(["Product URL", "Image URLs", "Second Last Image URL"])
 
         for url in product_urls:
             try:
@@ -62,17 +62,20 @@ def main():
                 soup = BeautifulSoup(resp.text, "html.parser")
 
                 all_imgs = get_all_image_urls(soup)
-                # join all image URLs into one cell, separated by commas
+                # join all image URLs into one cell
                 joined = ",".join(all_imgs)
-                writer.writerow([url, joined])
-                print(f"✅ {url} → {len(all_imgs)} images")
+                # pick the second-last URL if it exists
+                second_last = all_imgs[-2] if len(all_imgs) >= 2 else ""
+
+                writer.writerow([url, joined, second_last])
+                print(f"✅ {url} → {len(all_imgs)} images, 2nd-last: {second_last or '[none]'}")
 
             except Exception as e:
-                # on error, write empty image-cell and log
-                writer.writerow([url, ""])
+                # on error, write empty image-cells and log
+                writer.writerow([url, "", ""])
                 print(f"❌ {url} → ERROR: {e}")
 
-    print(f"\nDone! Wrote image URLs to {OUTPUT_CSV}")
+    print(f"\nDone! Wrote image URLs (and second-last) to {OUTPUT_CSV}")
 
 if __name__ == "__main__":
     main()
