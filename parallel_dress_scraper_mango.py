@@ -1,4 +1,4 @@
-import os
+import os 
 import csv
 import asyncio
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
@@ -28,7 +28,8 @@ def ensure_data_header():
     if not os.path.exists(DATA_CSV):
         with open(DATA_CSV, 'w', newline='', encoding='utf-8') as f:
             w = csv.writer(f)
-            w.writerow(['URL','Reference','Description','Sizes','Inventory','Image'])
+            # add 'Color' as the last column
+            w.writerow(['URL','Reference','Description','Sizes','Inventory','Image','Color'])
 
 def read_existing_refs():
     seen = set()
@@ -48,6 +49,7 @@ async def append_data(rows):
     with open(DATA_CSV, 'a', newline='', encoding='utf-8') as f:
         w = csv.writer(f)
         for row in rows:
+            # row now has 7 elements, with color at the end
             if row[1] not in existing:
                 w.writerow(row)
                 added += 1
@@ -96,11 +98,9 @@ async def scrape_product(context, url):
         try:
             await page.wait_for_selector("button.ZoomableImage_imageItemButton__HAbzY img", timeout=3000)
             img = await page.query_selector("button.ZoomableImage_imageItemButton__HAbzY img")
-            # try both lowercase and camelCase
             srcset = (await img.get_attribute("srcset")) or (await img.get_attribute("srcSet")) or ""
             if srcset:
                 parts = [p.strip() for p in srcset.split(",") if p.strip()]
-                # pick 493w if present
                 candidate = next((p.split()[0] for p in parts if "493w" in p), None)
                 image = candidate or (parts[0].split()[0] if parts else "")
             else:
@@ -108,7 +108,22 @@ async def scrape_product(context, url):
         except PlaywrightTimeoutError:
             image = ""
 
-        return [url, ref, desc, ", ".join(sizes), ", ".join(invs), image]
+        # 5) COLOR
+        try:
+            color_elem = await page.query_selector("p.ColorsSelector_label__52wJk")
+            color = (await color_elem.text_content()).strip() if color_elem else ""
+        except:
+            color = ""
+
+        return [
+            url,
+            ref,
+            desc,
+            ", ".join(sizes),
+            ", ".join(invs),
+            image,
+            color
+        ]
     finally:
         await page.close()
 
@@ -137,7 +152,7 @@ async def main():
                 pass
             hrefs = await page.eval_on_selector_all(
                 "a[href*='/us/en/p/women/dresses-and-jumpsuits/']",
-                "els => els.map(e=>e.href)"
+                "els => els.map(e => e.href)"
             )
             collected.update(hrefs)
             if len(collected) == prev:
