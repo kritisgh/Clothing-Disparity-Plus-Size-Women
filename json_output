@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+import csv
+import json
+import re
+import requests
+from bs4 import BeautifulSoup
+
+# input/output filenames
+LINKS_CSV     = "regular_product_links_color_mango.csv"
+OUTPUT_JSONL  = "regular_product_data_mango.jsonl"
+
+# Use a realistic UA to avoid being blocked
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+}
+
+def get_all_image_urls(soup):
+    """
+    From the <ul class="ImageGrid_imageGrid__..."> gallery,
+    for each <img> pick the 493w URL if present,
+    else fall back to the first srcset entry,
+    else the src attribute.
+    """
+    urls = []
+    for img in soup.select("ul.ImageGrid_imageGrid__0lrrn img"):
+        srcset = img.get("srcset") or img.get("srcSet") or ""
+        if srcset:
+            parts = [p.strip() for p in srcset.split(",") if p.strip()]
+            # pick the 493w entry if available
+            chosen = next((p.split()[0] for p in parts if "493w" in p), None)
+            # fallback to first entry
+            if not chosen and parts:
+                chosen = parts[0].split()[0]
+            if chosen:
+                urls.append(chosen)
+                continue
+        # fallback to plain src
+        src = img.get("src") or ""
+        if src:
+            urls.append(src)
+    return urls
+
+def main():
+    # 1) Load product URLs from CSV
+    with open(LINKS_CSV, newline="", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        next(reader, None)  # skip header
+        product_urls = [row[0] for row in reader if row]
+
+    # 2) Open JSONL output
+    with open(OUTPUT_JSONL, "w", encoding="utf-8") as out:
+        for url in product_urls:
+            record = {
+                "product_url": url,
+                "image_urls": [],
+                "second_image_url": None,
+                "second_last_url": None
+            }
+            try:
+                resp = requests.get(url, headers=HEADERS, timeout=30)
+                resp.raise_for_status()
+                soup = BeautifulSoup(resp.text, "html.parser")
+
+                all_imgs = get_all_image_urls(soup)
+                record["image_urls"]       = all_imgs
+                record["second_image_url"] = all_imgs[1]   if len(all_imgs) >= 2 else None
+                record["second_last_url"]  = all_imgs[-2]  if len(all_imgs) >= 2 else None
+
+                print(f"✅ {url} → {len(all_imgs)} images")
+            except Exception as e:
+                # On error, leave image arrays empty and log
+                print(f"❌ {url} → ERROR: {e}")
+
+            # Write one JSON object per line
+            out.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    print(f"\nDone! Wrote JSONL to {OUTPUT_JSONL}")
+
+if __name__ == "__main__":
+    main()
