@@ -3,9 +3,9 @@ import csv
 import asyncio
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 
-CATEGORY_URL   = 'https://shop.mango.com/us/en/c/women/dresses-and-jumpsuits/short_ec69d6b2'
-LINKS_CSV      = 'regular_product_links_mango.csv'
-DATA_CSV       = 'regular_product_data_mango.csv'
+CATEGORY_URL   = 'https://shop.mango.com/us/en/c/women/plus-sizes/dresses-and-jumpsuits_4d2c529c'
+LINKS_CSV      = 'plus_product_links_mango.csv'
+DATA_CSV       = 'plus_product_data_mango.csv'
 MAX_CONCURRENT = 5
 
 async def save_links(links):
