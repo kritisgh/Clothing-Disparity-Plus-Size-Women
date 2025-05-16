@@ -4,8 +4,8 @@ import requests
 from bs4 import BeautifulSoup
 
 # input/output filenames
-LINKS_CSV  = "regular_product_links_color_mango.csv"
-OUTPUT_CSV = "regular_product_image_urls_mango.csv"
+LINKS_CSV  = "plus_product_links_mango.csv"
+OUTPUT_CSV = "plus_product_image_urls_mango.csv"
 
 # Use a realistic UA to avoid being blocked
 HEADERS = {

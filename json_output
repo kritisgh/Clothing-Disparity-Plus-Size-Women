@@ -6,8 +6,8 @@ import requests
 from bs4 import BeautifulSoup
 
 # input/output filenames
-LINKS_CSV     = "regular_product_links_color_mango.csv"
-OUTPUT_JSONL  = "regular_product_data_mango.jsonl"
+LINKS_CSV     = "plus_product_links_mango.csv"
+OUTPUT_JSONL  = "plus_product_datacolor_mango.jsonl"
 
 # Use a realistic UA to avoid being blocked
 HEADERS = {

@@ -4,25 +4,23 @@
   <meta charset="UTF-8">
   <title>NYT-Style Two Carousels</title>
   <link rel="stylesheet" href="css/styles_json.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
 <body>
   <p style="text-align:center; margin:1em;">
     <a href="silhouette.html">View Silhouette Trace Animation</a>
   </p>
 
-  <!-- FIRST carousel (CSV → js/carousel_csv.js) -->
+  <!-- PLUS-SIZED CAROUSEL -->
   <h2>All dresses available for plus sized women</h2>
+  <button id="toggle-plus">View Products</button>
   <div id="carousel" class="carousel"></div>
 
-  <!-- SECOND carousel (JSONL → js/carousel_jsonl.js) -->
+  <!-- REGULAR-SIZED CAROUSEL -->
   <h2>Short dresses available for Regular Sized women</h2>
-
-  <!-- toggle button -->
-  <button id="toggle-img-mode">See products</button>
-
+  <button id="toggle-img-mode">View Products</button>
   <div id="carousel_json" class="carousel"></div>
 
+  <!-- point to your exact filenames: -->
   <script src="js/carousel_csv.js"></script>
   <script src="js/carousel_jsonl.js"></script>
 </body>
