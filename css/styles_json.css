@@ -1,8 +1,8 @@
 :root {
   --slice-width:      50px;
   --strip-height:     200px;
-  --carousel-max-width: 1200px;  /* whatever max-width you prefer */
-  --carousel-padding:   16px;    /* space on left/right */
+  --carousel-max-width: 1200px;
+  --carousel-padding:   16px;
 }
 
 .carousel {
@@ -11,17 +11,17 @@
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   gap: 0;
-
-  /* center & constrain */
   max-width: var(--carousel-max-width);
   margin: 0 auto;
   padding: 0 var(--carousel-padding);
-  position: relative; /* For absolute positioning of annotation */
+  position: relative;
 }
 
-/* Add margin-bottom to create space between carousels */
 #carousel {
-  margin-bottom: 40px; /* Adjust the value as needed */
+  margin-bottom: 40px;
+}
+#carousel_json{
+    margin-bottom: 40px;
 }
 
 .strip {
@@ -46,6 +46,7 @@
   will-change: left;
   max-width: 100vw;
 }
+
 .annotation-container {
   display: flex;
   flex-direction: column;

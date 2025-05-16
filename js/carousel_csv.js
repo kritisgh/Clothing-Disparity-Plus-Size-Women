@@ -118,8 +118,7 @@
     annotationContainer.style.position = 'absolute';
     // corrected left position.
     annotationContainer.style.left = `${strips[0].getBoundingClientRect().left}px`;
-    annotationContainer.style.top = `${container.getBoundingClientRect().bottom + 5}px`;
-    annotationContainer.style.display = 'flex';
+annotationContainer.style.top = `${container.getBoundingClientRect().bottom + 5 + window.scrollY}px`;    annotationContainer.style.display = 'flex';
     annotationContainer.style.flexDirection = 'column';
     annotationContainer.style.alignItems = 'flex-start';
     annotationContainer.style.marginBottom = '20px';
