@@ -158,6 +158,7 @@
         bracketRow.style.width = '100%';
         bracketRow.style.position = 'relative';
         bracketRow.style.height = '50px'; // Height for brackets and labels
+        bracketRow.style.marginLeft = '0'; // Ensure no margin shifts the brackets
         annotationContainer.appendChild(bracketRow);
         
         // Track the starting index for each category
@@ -169,7 +170,8 @@
             const wrapper = document.createElement('div');
             wrapper.style.width = `${sliceW * category.count}px`;
             wrapper.style.boxSizing = 'border-box';
-            wrapper.style.position = 'relative';
+            wrapper.style.position = 'absolute';
+            wrapper.style.left = `${startIndex * sliceW}px`; // Position based on startIndex
             wrapper.style.height = '100%';
             wrapper._currentWidth = sliceW * category.count;
             wrapper._targetWidth = sliceW * category.count;
@@ -213,12 +215,26 @@
     function updateBracketWidths(sliceW) {
         bracketWrappers.forEach(wrapper => {
             let totalWidth = 0;
+            
+            // Only consider strips within this bracket's range
             for (let i = wrapper._startIndex; i <= wrapper._endIndex; i++) {
                 if (i < strips_sil.length) {
                     totalWidth += strips_sil[i]._targetW || sliceW;
                 }
             }
+            
             wrapper._targetWidth = totalWidth;
+            
+            // Update wrapper position based on the cumulative width of all previous strips
+            let leftOffset = 0;
+            for (let i = 0; i < wrapper._startIndex; i++) {
+                if (i < strips_sil.length) {
+                    leftOffset += strips_sil[i]._targetW || sliceW;
+                }
+            }
+            wrapper.style.marginLeft = '0px'; // Reset margin
+            wrapper.style.position = 'absolute';
+            wrapper.style.left = `${leftOffset}px`;
         });
     }
     
@@ -227,11 +243,30 @@
         bracketWrappers.forEach(wrapper => {
             const categoryCount = wrapper._endIndex - wrapper._startIndex + 1;
             wrapper._targetWidth = sliceW * categoryCount;
+            
+            // Reset position based on default slice width
+            const leftOffset = wrapper._startIndex * sliceW;
+            wrapper.style.left = `${leftOffset}px`;
         });
     }
     
     // Function to animate brackets
     function animateBrackets() {
+        // First, calculate and update left positions
+        let currentLeftPosition = 0;
+        
+        for (let i = 0; i < strips_sil.length; i++) {
+            // Find any wrapper starting at this index
+            const startingWrapper = bracketWrappers.find(w => w._startIndex === i);
+            if (startingWrapper) {
+                startingWrapper.style.left = `${currentLeftPosition}px`;
+            }
+            
+            // Update running total of width
+            currentLeftPosition += strips_sil[i]._currentW || 0;
+        }
+        
+        // Then animate widths
         bracketWrappers.forEach(wrapper => {
             wrapper._currentWidth = lerp(wrapper._currentWidth, wrapper._targetWidth, 0.08);
             wrapper.style.width = `${wrapper._currentWidth}px`;
