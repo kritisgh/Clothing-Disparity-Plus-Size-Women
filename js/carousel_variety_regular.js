@@ -10,13 +10,13 @@
 
     // Define the annotation categories and their counts
     const categories = [
-        { name: "strapless", count: 7 },
-        { name: "straps", count: 13 },
-        { name: "drape", count: 3 },
-        { name: "asymmetric necklines", count: 7 },
-        { name: "see through dresses", count: 5 },
-        { name: "halter", count: 6 },
-        { name: "interesting collar details", count: 5 }
+        { name: "Strapless", count: 7 },
+        { name: "Strappy dresses", count: 13 },
+        { name: "Ruched dresses", count: 3 },
+        { name: "Asymmetric necklines", count: 7 },
+        { name: "Sheer dresses", count: 5 },
+        { name: "Halter necklines", count: 6 },
+        { name: "Interesting collar details", count: 5 }
     ];
 
     function lerp(a,b,t){ return a + (b-a)*t; }
