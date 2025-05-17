@@ -4,44 +4,67 @@
   <meta charset="UTF-8" />
   <title>SVG Path-Trace Animation</title>
   <style>
-    body { font-family: sans-serif; }
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 2em;
+      flex-wrap: wrap;
+      padding: 2em;
+    }
+
+    figure {
+      margin: 0;
+      text-align: center;
+    }
+
     .stack-container {
       position: relative;
-      width: 600px;    /* adjust to your SVG aspect */
-      height: 800px;
-      margin: 2em auto;
+      width: 300px;
+      height: 400px;
       border: 1px solid #ddd;
       overflow: hidden;
     }
+
     .stack-container svg {
       position: absolute;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       width: 100%;
       height: auto;
+    }
+
+    figcaption {
+      font-size: 0.8em;
+      color: #666;
+      margin-top: 0.5em;
     }
   </style>
 </head>
 <body>
-  <h2>Outline Silhouettes</h2>
-  <div id="container-outlines" class="stack-container"></div>
+  <figure>
+    <div id="container-outlines" class="stack-container"></div>
+    <figcaption>Outlines of products</figcaption>
+  </figure>
 
-  <h2>People Silhouettes</h2>
-  <div id="container-people" class="stack-container"></div>
+  <figure>
+    <div id="container-people" class="stack-container"></div>
+    <figcaption>Outlines of models</figcaption>
+  </figure>
 
   <script>
-    const DRAW_DURATION   = 800;  // ms per trace
-    const DELAY_BETWEEN   = 200;   // ms stagger
+    const DRAW_DURATION   = 800;
+    const DELAY_BETWEEN   = 200;
     const STROKE_COLOR    = 'blue';
     const STROKE_WIDTH    = 4;
 
-    // Fetch a JSON manifest (array of filenames)
     async function loadManifest(path) {
       const res = await fetch(path);
       if (!res.ok) throw new Error(`Cannot load ${path}`);
-      return res.json();  // e.g. ["000_mask.svg","001_mask.svg",…]
+      return res.json();
     }
 
-    // Given SVG text, inline it and animate its <path>
     function animateSVG(svgText, container, index) {
       const wrapper = document.createElement('div');
       wrapper.innerHTML = svgText.trim();
@@ -49,18 +72,15 @@
       const path = svg.querySelector('path');
       if (!path) return;
 
-      // style SVG & path
       svg.style.zIndex = index;
       path.style.fill            = 'none';
       path.style.stroke          = STROKE_COLOR;
       path.style.strokeWidth     = STROKE_WIDTH;
 
-      // prepare dash-animation
       const length = path.getTotalLength();
       path.style.strokeDasharray  = length;
       path.style.strokeDashoffset = length;
 
-      // insert and trigger animation
       container.appendChild(svg);
       setTimeout(() => {
         path.style.transition = `stroke-dashoffset ${DRAW_DURATION}ms ease-out`;
@@ -68,7 +88,6 @@
       }, index * DELAY_BETWEEN);
     }
 
-    // Build and animate a stack from a folder + its manifest
     async function buildStack(manifestPath, folder, containerId) {
       const files     = await loadManifest(manifestPath);
       const container = document.getElementById(containerId);
@@ -80,7 +99,6 @@
       });
     }
 
-    // Kick off both stacks
     buildStack('outlines_svg.json',   'outlines_svg',   'container-outlines');
     buildStack('people_svg.json',     'people_svg',     'container-people');
   </script>

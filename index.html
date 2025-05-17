@@ -5,7 +5,7 @@
   <title>Fashion's Forgotten Figures</title>
   <link rel="stylesheet" href="css/styles_json.css">
   <style>
-    /* ===== Chart Styles (inlined) ===== */
+    /* ===== Chart Styles ===== */
     .controls {
       display: flex;
       gap: 20px;
@@ -34,26 +34,46 @@
       font-family: sans-serif;
       color: #333;
     }
-    /* ===== End Chart Styles ===== */
+
+    /* ===== Silhouette Trace Styles ===== */
+    .sil-stack-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 2em;
+      flex-wrap: wrap;
+      margin: 2em 0;
+    }
+    figure {
+      margin: 0;
+      text-align: center;
+    }
+    .stack-container {
+      position: relative;
+      width: 300px;
+      height: 400px;
+      border: 1px solid #ddd;
+      overflow: hidden;
+    }
+    .stack-container svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: auto;
+    }
+    figcaption {
+      font-size: 0.8em;
+      color: #666;
+      margin-top: 0.5em;
+    }
   </style>
 </head>
 <body>
-  <!-- <p style="text-align:center; margin:1em;">
-    <a href="silhouette.html">View Silhouette Trace Animation</a>
-  </p> -->
   <h1>Plus-Size Fashion Analysis</h1>
 
-  <!-- Intro paragraph added at the very top -->
-  <section id="intro" style="padding: 20px; background-color: #f9f9f9;">
-    <p>
-      Larger women lament across social media threads, blog posts, and YouTube videos on the scarcity of stylish, well-fitting pieces in larger sizes. Many brands don’t even carry larger sizes and when they do they’re the same garish, tacky and tasteless clothes.
-    </p>
-    <p>
-      Men in leadership positions who dictate fashion trends, such as Karl Lagerfeld, head designer of Chanel, said in 2009, “No one wants to see curvy women” on the runway. Plenty of mass retailers are no more enlightened: Under the tenure of chief executive Mike Jeffries, Abercrombie & Fitch sold nothing larger than a size 10, with Jeffries explaining that “we go after the attractive, all-American kid.”
-    </p>
-    <p>
-      Despite the endless outcry online with many news articles focusing on the lack of options, little data illustrates just how inferior the offerings made to plus-size women are compared to their thinner counterparts. I cataloged the number of silhouettes, colorways, and design details available in plus-size versus standard-size ranges across Barcelona-based brand Mango, which has a sizeable presence in the US shopping market. Plus size will refer to US sizes 12 and above until size 20 and letter sizes XL to 4XL.
-    </p>
+  <section id="intro" style="padding:20px; background-color:#f9f9f9;">
+    <p>Larger women lament across social media threads, blog posts, and YouTube videos on the scarcity of stylish, well-fitting pieces in larger sizes. Many brands don’t even carry larger sizes and when they do they’re the same garish, tacky and tasteless clothes.</p>
+    <p>Men in leadership positions who dictate fashion trends, such as Karl Lagerfeld, head designer of Chanel, said in 2009, “No one wants to see curvy women” on the runway. Plenty of mass retailers are no more enlightened: Under the tenure of chief executive Mike Jeffries, Abercrombie & Fitch sold nothing larger than a size 10, with Jeffries explaining that “we go after the attractive, all-American kid.”</p>
+    <p>Despite the endless outcry online with many news articles focusing on the lack of options, little data illustrates just how inferior the offerings made to plus-size women are compared to their thinner counterparts. I cataloged the number of silhouettes, colorways, and design details available in plus-size versus standard-size ranges across Barcelona-based brand Mango, which has a sizeable presence in the US shopping market. Plus size will refer to US sizes 12 and above up to size 20 and letter sizes XL to 4XL.</p>
   </section>
 
   <h2>These are ALL 77 dresses available for plus sized women.</h2>
@@ -62,32 +82,40 @@
   <div id="carousel" class="carousel"></div>
 
   <h2>Short dresses available for Regular Sized women.</h2>
-    <p>We see 97 dresses offered just in the short category. More than 10x the amount offered for plus-size women.</p>
-
+  <p>We see 97 dresses offered just in the short category. More than 10× the amount offered for plus-size women.</p>
   <button id="toggle-img-mode">View Products</button>
   <div id="carousel_json" class="carousel"></div>
 
+  <!-- silhouette trace -->
+  <h2>This homogeneity in dress length is further confirmed when these dresses are stacked on each other.</h2>
+  <div class="sil-stack-wrapper">
+    <figure>
+      <div id="container-outlines" class="stack-container"></div>
+      <figcaption>Outlines of products</figcaption>
+    </figure>
+    <figure>
+      <div id="container-people" class="stack-container"></div>
+      <figcaption>Outlines of models</figcaption>
+    </figure>
+    
+  </div>
+  <p>It reveals the brand's opinion on who is allowed to show skin.</p>
+
   <h2>Voluminous, shapeless, long half-sleeved dresses a staple in the plus-size category.</h2>
-  <p>As <a href="https://www.reddit.com/r/PlusSize/comments/1bbchee/comment/kubaucm/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button">u/chubalubs on r/PlusSize</a> puts it, "It's like the brands think the more garish, the better for distracting from the size."</p>
+  <p>As <a href="https://www.reddit.com/r/PlusSize/comments/1bbchee/comment/kubaucm/">u/chubalubs on r/PlusSize</a> puts it, "It's like the brands think the more garish, the better for distracting from the size."</p>
   <p>The same kind of necklines, mostly v-necks, offered here. The silhouettes show a relaxed fabric around the bust with some gathering at the waist to create "shape."</p>
   <div id="carousel_silhouette" class="carousel"></div>
 
-  <h2>"Regular sized" women enjoy pomp and glamour from interesting necklines and details in more capital F fashionable colors. </h2>
+  <h2>"Regular sized" women enjoy pomp and glamour from interesting necklines and details in more capital-F fashionable colors.</h2>
   <p>Most of these dresses don't go above a US size 8.</p>
   <div id="carousel_variety_regular" class="carousel"></div>
-  <p style="text-align:center; margin:1em;">
-    <a href="silhouette.html">View Silhouette Trace Animation</a>
-  </p>
 
-  <script src="js/carousel_csv.js"></script>
-  <script src="js/carousel_jsonl.js"></script>
-  <script src="js/carousel_silhouette.js"></script>
-  <script src="js/carousel_variety_regular.js"></script>
-  <script src="js/analysis.js"></script>
+
 
   <!-- ===== Chart Section ===== -->
   <h2 class="chart-title">Explore the differences in offerings</h2>
-  <p>Select amongst a variety of categories to see how they compare in the two sizes. Make sure to checkout Embellishment & Detail. </p>
+  <p>Select a category to compare how often various features appear in Regular vs Plus collections. Make sure to checkout Embellishment and Detail to see the lack of delight in plus size women's clothing.</p>
+  <p>'Short' shows up 3 times more in regular-size vs. in plus-size.</p>
 
   <div class="controls">
     <label>
@@ -99,96 +127,112 @@
       Show as % of total
     </label>
   </div>
-  <canvas id="barChart" width="900" height="500"></canvas>
-  <!-- ===== End Chart Section ===== -->
 
-  <!-- Chart Dependencies -->
+  <canvas id="barChart" width="900" height="500"></canvas>
+  <p>Zoe Hong, who is a fashion designer, illustrator, and instructor at one of the world’s most prestigious fashion universities says,</p>
+  <blockquote cite="https://example.com/source-of-quote">
+    <p>
+      There is a big hole in the plus-size market right now: there aren’t many brands addressing fat women, and so it becomes a vicious circle. The media portrays fat women as frumpy, fat women lack clothing options to look less frumpy, and the media then reinforces that limited reality. It’s not that fat women have less style; it’s that fat women have fewer options. You need to move away from the mindset where you only design with figure flattery in mind; instead, create a variety of silhouettes and let your customers decide what they want to wear.
+    </p>
+  </blockquote>
+
+
+  <!-- Dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/carousel_csv.js"></script>
+  <script src="js/carousel_jsonl.js"></script>
+  <script src="js/carousel_silhouette.js"></script>
+  <script src="js/carousel_variety_regular.js"></script>
+
   <script>
+    // ===== Data maps =====
+    const synonymsMap = {
+      neckline:    ['neckline','neck'],
+      asymmetric:  ['asymmetric','asymmetrical'],
+      fit:         ['fit','fitted'],
+      zip:         ['zip','zipper'],
+      button:      ['button','buttoned','buttons'],
+      sleeve:      ['sleeve','sleeves'],
+      strap:       ['strap','straps'],
+      knit:        ['knit','knitted'],
+      lightweight: ['light','lightweight'],
+      pattern:     ['pattern','patterned'],
+      print:       ['print','printed'],
+      embroidery:  ['embroidery','embroidered'],
+      texture:     ['texture','textured'],
+      mirror:      ['mirror','mirrors'],
+      feather:     ['feather','feathers'],
+      elegant:     ['elegant','elegance'],
+      sophisticated: ['sophisticated','sophistication']
+    };
+
+    const categoryMap = {
+      "Length": [
+        'short','long','midi','maxi','mini','quarter','medium'
+      ],
+      "Silhouette & Fit": [
+        'asymmetric','straight','fit','flared','flowy','fluid','slim',
+        'bubble','draped','wrap','peplum','dart','gathered'
+      ],
+      "Neckline & Collar": [
+        'neckline','collar','turtleneck','halter','lapel',
+        'boat','round','square','polo','perkins','welt'
+      ],
+      "Sleeves & Straps": [
+        'sleeve','sleeveless','strap','strapless'
+      ],
+      "Closures & Accessories": [
+        'closure','zip','buckle','button','fastening','tie','knot',
+        'belt','bow'
+      ],
+      "Materials & Properties": [
+        'cotton','knit','blend','linen','denim','chiffon','lyocell',
+        'satin','tweed','crochet','elastic','stretch','lightweight',
+        'metal','lace'
+      ],
+      "Pattern & Print": [
+        'pattern','print','floral','animal','leopard','zebra','ostrich',
+        'pinstripe','striped'
+      ],
+      "Embellishment & Detail": [
+        'appliqué','embellishments','embroidery','decorative','ruffle',
+        'frill','scalloped','patch','pleats','flounce','runched','frayed',
+        'texture','ornament','mirror','sequin','sparkly','shine','dazzle',
+        'ribbon','trim'
+      ],
+      "Styling & Occasion": [
+        'party','collection','ceremony','wedding','capsule','fun','elegant',
+        'sophisticated','fine','bold','special','modern'
+      ],
+      "Functional Features": [
+        'pockets','slits','lining','unlined'
+      ]
+    };
+
     window.addEventListener('DOMContentLoaded', () => {
+      // Populate dropdown
+      const sel = document.getElementById('categorySelect');
+      Object.keys(categoryMap).forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        sel.appendChild(opt);
+      });
+
+      // Load descriptions & build chart
       let freqReg = null, freqPlus = null;
-      const regularItemCount = 97;
-      const plusItemCount    = 77;
+      const regCount = 97, plusCount = 77;
 
       function getFreq(descs) {
-        const stops = new Set([
-          'the','and','of','with','for','that','this','from','are','but','not',
-          'you','all','has','have','its','in','on','as','to','it','a','an','is'
-        ]);
+        const stops = new Set(['the','and','of','with','for','that','this','from','are','but','not','you','all','has','have','its','in','on','as','to','it','a','an','is']);
         return descs.reduce((f, txt) => {
-          (txt.toLowerCase().match(/\b\w+\b/g) || []).forEach(w => {
-            if (w.length > 2 && !stops.has(w)) {
-              f[w] = (f[w] || 0) + 1;
-            }
+          (txt.toLowerCase().match(/\b\w+\b/g)||[]).forEach(w => {
+            if (w.length>2 && !stops.has(w)) f[w] = (f[w]||0)+1;
           });
           return f;
         }, {});
       }
-
-      const synonymsMap = {
-        neckline:    ['neckline','neck'],
-        asymmetric:    ['asymmetric','asymmetrical'],
-        fit:           ['fit','fitted'],
-        zip:           ['zip','zipper'],
-        button:        ['button','buttoned','buttons'],
-        sleeve:        ['sleeve','sleeves'],
-        strap:         ['strap','straps'],
-        knit:          ['knit','knitted'],
-        lightweight:   ['light','lightweight'],
-        pattern:       ['pattern','patterned'],
-        print:         ['print','printed'],
-        embroidery:    ['embroidery','embroidered'],
-        texture:       ['texture','textured'],
-        mirror:        ['mirror','mirrors'],
-        feather:       ['feather','feathers'],
-        elegant:       ['elegant','elegance'],
-        sophisticated: ['sophisticated','sophistication']
-      };
-
-      const categoryMap = {
-"Length": [
-          'short','long','midi','maxi','mini','quarter','medium'
-        ],
-        "Silhouette & Fit": [
-          'asymmetric','straight','fit','flared','flowy','fluid','slim',
-          'bubble','draped','wrap','peplum','dart','gathered'
-        ],
-        
-        "Neckline & Collar": [
-          'neckline','collar','turtleneck','halter','lapel',
-          'boat','round','square','polo','perkins','welt'
-        ],
-        "Sleeves & Straps": [
-          'sleeve','sleeveless','strap','strapless'
-        ],
-        "Closures & Accessories": [
-          'closure','zip','buckle','button','fastening','tie','knot',
-          'belt','bow'
-        ],
-        "Materials & Properties": [
-          'cotton','knit','blend','linen','denim','chiffon','lyocell',
-          'satin','tweed','crochet','elastic','stretch','lightweight',
-          'metal','lace',
-        ],
-        "Pattern & Print": [
-          'pattern','print','floral','animal','leopard','zebra','ostrich',
-          'pinstripe','striped'
-        ],
-        "Embellishment & Detail": [
-          'appliqué','embellishments','embroidery','decorative','ruffle',
-          'frill','scalloped','patch','pleats','flounce','runched','frayed',
-          'texture','ornament','mirror','sequin','sparkly','shine','dazzle',
-          'ribbon','trim'
-        ],
-        "Styling & Occasion": [
-          'party','collection','ceremony','wedding','capsule','fun','elegant',
-          'sophisticated','fine','bold','special','modern'
-        ],
-        "Functional Features": [
-          'pockets','slits','lining','unlined'
-        ]
-      };
 
       function tryInit() {
         if (freqReg && freqPlus) initChart();
@@ -196,27 +240,14 @@
 
       Papa.parse('regular_product_data_mango.csv', {
         download: true, header: true, skipEmptyLines: true,
-        complete: res => {
-          freqReg = getFreq(res.data.map(r => r.Description || ''));
-          tryInit();
-        }
+        complete: res => { freqReg = getFreq(res.data.map(r=>r.Description||'')); tryInit(); }
       });
       Papa.parse('plus_product_data_mango.csv', {
         download: true, header: true, skipEmptyLines: true,
-        complete: res => {
-          freqPlus = getFreq(res.data.map(r => r.Description || ''));
-          tryInit();
-        }
+        complete: res => { freqPlus = getFreq(res.data.map(r=>r.Description||'')); tryInit(); }
       });
 
       function initChart() {
-        const sel = document.getElementById('categorySelect');
-        Object.keys(categoryMap).forEach(cat => {
-          const o = document.createElement('option');
-          o.value = cat; o.textContent = cat;
-          sel.appendChild(o);
-        });
-
         const ctx = document.getElementById('barChart').getContext('2d');
         const chart = new Chart(ctx, {
           type: 'bar',
@@ -227,16 +258,12 @@
           options: {
             responsive: true,
             scales: {
-              x: { stacked: false, ticks: { autoSkip: false, maxRotation: 90 } },
-              y: { beginAtZero: true, title: { display: true, text: 'Count' } }
+              x: { ticks:{ autoSkip:false, maxRotation:90 } },
+              y: { beginAtZero:true, title:{ display:true, text:'Count' } }
             },
             plugins: {
-              tooltip: {
-                callbacks: {
-                  label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}`
-                }
-              },
-              legend: { position: 'top' }
+              legend:{ position:'top' },
+              tooltip:{ callbacks:{ label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y}` }}
             }
           }
         });
@@ -244,24 +271,21 @@
         function updateChart() {
           const cat = sel.value;
           const norm = document.getElementById('normalizeToggle').checked;
-          const terms = categoryMap[cat];
-          const labs = [], regD = [], plusD = [];
+          const terms = categoryMap[cat] || [];
+          const labels = [], dataR = [], dataP = [];
 
-          terms.forEach(c => {
-            const syns = synonymsMap[c] || [c];
+          terms.forEach(key => {
+            const syns = synonymsMap[key] || [key];
             let rSum = 0, pSum = 0;
-            syns.forEach(w => {
-              rSum += (freqReg[w] || 0);
-              pSum += (freqPlus[w] || 0);
-            });
-            labs.push(c);
-            regD.push(norm ? +(rSum/regularItemCount).toFixed(2) : rSum);
-            plusD.push(norm ? +(pSum/plusItemCount).toFixed(2) : pSum);
+            syns.forEach(w => { rSum += freqReg[w]||0; pSum += freqPlus[w]||0; });
+            labels.push(key);
+            dataR.push(norm ? +(rSum/regCount).toFixed(2) : rSum);
+            dataP.push(norm ? +(pSum/plusCount).toFixed(2) : pSum);
           });
 
-          chart.data.labels = labs;
-          chart.data.datasets[0].data = regD;
-          chart.data.datasets[1].data = plusD;
+          chart.data.labels = labels;
+          chart.data.datasets[0].data = dataR;
+          chart.data.datasets[1].data = dataP;
           chart.options.scales.y.title.text = norm ? '% of items' : 'Count';
           chart.update();
         }
@@ -273,14 +297,58 @@
         updateChart();
       }
     });
-  </script>
-  <p>Zoe Hong, who is a fashion designer, illustrator, and instructor at one of the world’s most prestigious fashion universities says,	
-</p>
-<blockquote cite="https://example.com/source-of-quote">
-  <p>
-    There is a big hole in the plus-size market right now: there aren’t many brands addressing fat women, and so it becomes a vicious circle. The media portrays fat women as frumpy, fat women lack clothing options to look less frumpy, and the media then reinforces that limited reality. It’s not that fat women have less style; it’s that fat women have fewer options. You need to move away from the mindset where you only design with figure flattery in mind; instead, create a variety of silhouettes and let your customers decide what they want to wear.
-  </p>
-</blockquote>
 
+    // ===== Silhouette‐trace intersection & animation =====
+    const DRAW_DURATION = 800, DELAY_BETWEEN = 200;
+    const STROKE_COLOR  = 'blue', STROKE_WIDTH = 4;
+
+    async function loadManifest(path) {
+      const res = await fetch(path);
+      if (!res.ok) throw new Error(`Cannot load ${path}`);
+      return res.json();
+    }
+
+    function animateSVG(svgText, container, index) {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = svgText.trim();
+      const svg  = wrapper.querySelector('svg');
+      const path = svg?.querySelector('path');
+      if (!svg || !path) return;
+      svg.style.zIndex = index;
+      path.style.fill = 'none';
+      path.style.stroke = STROKE_COLOR;
+      path.style.strokeWidth = STROKE_WIDTH;
+      const length = path.getTotalLength();
+      path.style.strokeDasharray = length;
+      path.style.strokeDashoffset = length;
+      container.appendChild(svg);
+      setTimeout(() => {
+        path.style.transition = `stroke-dashoffset ${DRAW_DURATION}ms ease-out`;
+        path.style.strokeDashoffset = '0';
+      }, index * DELAY_BETWEEN);
+    }
+
+    async function buildStack(manifestPath, folder, id) {
+      const files = await loadManifest(manifestPath);
+      const cont  = document.getElementById(id);
+      files.forEach((f,i) =>
+        fetch(`${folder}/${f}`)
+          .then(r=>r.text())
+          .then(txt=>animateSVG(txt, cont, i))
+          .catch(()=>{})
+      );
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const wrap = document.querySelector('.sil-stack-wrapper');
+      new IntersectionObserver((ents, obs) => {
+        if (ents[0].isIntersecting) {
+          buildStack('outlines_svg.json', 'outlines_svg', 'container-outlines');
+          buildStack('people_svg.json',   'people_svg',   'container-people');
+          obs.disconnect();
+        }
+      }, { threshold: 0.2 }).observe(wrap);
+    });
+  </script>
 </body>
 </html>
