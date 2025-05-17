@@ -57,3 +57,36 @@
 #carousel_variety_regular {
   position: relative;
 }
+
+body {
+  font-family: sans-serif;
+  margin: 40px;
+  background: #fafafa;
+  color: #333;
+}
+
+.controls {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin: 40px 0 20px;
+}
+
+.controls label {
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.controls select,
+.controls input {
+  margin-left: 8px;
+  padding: 4px 8px;
+}
+
+#barChart {
+  max-width: 900px;
+  margin: 0 auto 60px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}

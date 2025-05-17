@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Descriptor Terms by Category</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 40px;
+      background: #fafafa;
+      color: #333;
+    }
+    .controls {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .controls label {
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+    .controls select, .controls input {
+      margin-left: 8px;
+      padding: 4px 8px;
+    }
+    canvas {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Descriptor Term Frequencies</h1>
+  <div class="controls">
+    <label>
+      Category:
+      <select id="categorySelect"></select>
+    </label>
+    <label>
+      <input type="checkbox" id="normalizeToggle">
+      Show as % of total
+    </label>
+  </div>
+  <canvas id="barChart" width="900" height="500"></canvas>
+
+  <!-- Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    let freqReg = null, freqPlus = null;
+    const regularItemCount = 97;  // adjust if needed
+    const plusItemCount    = 77;  // adjust if needed
+
+    // 1) Utility to count words
+    function getFreq(descs) {
+      const stops = new Set(['the','and','of','with','for','that','this','from','are','but','not','you','all','has','have','its','in','on','as','to','it','a','an','is']);
+      const f = {};
+      descs.forEach(txt => {
+        (txt.toLowerCase().match(/\b\w+\b/g)||[]).forEach(w => {
+          if (w.length>2 && !stops.has(w)) f[w] = (f[w]||0)+1;
+        });
+      });
+      return f;
+    }
+
+    // 2) Synonym merges
+    const synonymsMap = {
+      asymmetric: ['asymmetric','asymmetrical'],
+      fit:        ['fit','fitted'],
+      zip:        ['zip','zipper'],
+      button:     ['button','buttoned','buttons'],
+      sleeve:     ['sleeve','sleeves'],
+      strap:      ['strap','straps'],
+      knit:       ['knit','knitted'],
+      lightweight:['light','lightweight'],
+      pattern:    ['pattern','patterned'],
+      print:      ['print','printed'],
+      embroidery: ['embroidery','embroidered'],
+      texture:    ['texture','textured'],
+      mirror:     ['mirror','mirrors'],
+      feather:    ['feather','feathers'],
+      elegant:    ['elegant','elegance'],
+      sophisticated: ['sophisticated','sophistication']
+    };
+
+    // 3) Final category → canonical terms
+    const categoryMap = {
+      "Silhouette & Fit":     ['asymmetric','straight','fit','flared','flowy','fluid','slim','bubble','draped','wrap','peplum','dart','gathered'],
+      "Length":               ['short','long','midi','maxi','mini','quarter','medium'],
+      "Neckline & Collar":    ['neckline','vneck','collar','turtleneck','halter','lapel','boat','round','square','polo','perkins','welt'],
+      "Sleeves & Straps":     ['sleeve','sleeveless','strap','strapless'],
+      "Closures & Accessories":['closure','zip','buckle','button','fastening','tie','knot','belt','bow'],
+      "Materials & Properties":['cotton','knit','blend','linen','denim','chiffon','lyocell','satin','tweed','crochet','elastic','stretch','lightweight','metal','lace','lining','unlined'],
+      "Pattern & Print":      ['pattern','print','floral','animal','leopard','zebra','ostrich','pinstripe','striped'],
+      "Embellishment & Detail":['appliques','embellishments','embroidery','decorative','ruffle','frill','scalloped','patch','pleats','flounce','runched','frayed','texture','ornament','mirror','sequin','sparkly','shine','dazzle','ribbon','trim'],
+      "Styling & Occasion":   ['party','collection','ceremony','wedding','capsule','fun','elegant','sophisticated','fine','bold','special','modern'],
+      "Functional Features":  ['pockets','slits']
+    };
+
+    // 4) Load both CSVs
+    Papa.parse('regular_product_data_mango.csv', {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: res => {
+        const desc = res.data.map(r=>r.Description||'');
+        freqReg = getFreq(desc);
+        if (freqPlus) initDashboard();
+      }
+    });
+    Papa.parse('plus_product_data_mango.csv', {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: res => {
+        const desc = res.data.map(r=>r.Description||'');
+        freqPlus = getFreq(desc);
+        if (freqReg) initDashboard();
+      }
+    });
+
+    function initDashboard() {
+      // populate categories dropdown
+      const sel = document.getElementById('categorySelect');
+      Object.keys(categoryMap).forEach(cat => {
+        const o = document.createElement('option');
+        o.value = cat; o.textContent = cat;
+        sel.appendChild(o);
+      });
+
+      // setup Chart.js
+      const ctx = document.getElementById('barChart').getContext('2d');
+      const chart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: [], datasets: [
+          { label:'Regular', backgroundColor:'rgba(54,162,235,0.6)', data:[] },
+          { label:'Plus',    backgroundColor:'rgba(255,99,132,0.6)', data:[] }
+        ]},
+        options: {
+          responsive:true,
+          scales:{
+            x:{ stacked:false, ticks:{ autoSkip:false, maxRotation:90 } },
+            y:{ beginAtZero:true, title:{ display:true, text:'Count' } }
+          },
+          plugins:{
+            tooltip:{ callbacks:{
+              label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}`
+            }},
+            legend:{ position:'top' }
+          }
+        }
+      });
+
+      function updateChart() {
+        const cat = sel.value;
+        const norm = document.getElementById('normalizeToggle').checked;
+        const keys = categoryMap[cat];
+
+        // for each canonical term, sum its synonyms
+        const regs = [], pluses = [], labs = [];
+        keys.forEach(c => {
+          const syns = synonymsMap[c] || [c];
+          let rSum = 0, pSum = 0;
+          syns.forEach(w => {
+            rSum += (freqReg[w] || 0);
+            pSum += (freqPlus[w]|| 0);
+          });
+          labs.push(c);
+          regs.push(norm ? +(rSum/regularItemCount).toFixed(2) : rSum);
+          pluses.push(norm? +(pSum/plusItemCount).toFixed(2): pSum);
+        });
+
+        chart.data.labels = labs;
+        chart.data.datasets[0].data = regs;
+        chart.data.datasets[1].data = pluses;
+        chart.options.scales.y.title.text = norm? '% of items':'Count';
+        chart.update();
+      }
+
+      sel.addEventListener('change', updateChart);
+      document.getElementById('normalizeToggle').addEventListener('change', updateChart);
+
+      // initial draw
+      sel.value = Object.keys(categoryMap)[0];
+      updateChart();
+    }
+  </script>
+</body>
+</html>

@@ -4,14 +4,44 @@
   <meta charset="UTF-8">
   <title>NYT-Style Two Carousels</title>
   <link rel="stylesheet" href="css/styles_json.css">
+  <style>
+    /* ===== Chart Styles (inlined) ===== */
+    .controls {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin: 40px 0 20px;
+    }
+    .controls label {
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+    .controls select,
+    .controls input {
+      margin-left: 8px;
+      padding: 4px 8px;
+    }
+    #barChart {
+      max-width: 900px;
+      margin: 0 auto 60px;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    h2.chart-title {
+      text-align: center;
+      margin-top: 60px;
+      font-family: sans-serif;
+      color: #333;
+    }
+    /* ===== End Chart Styles ===== */
+  </style>
 </head>
 <body>
   <!-- <p style="text-align:center; margin:1em;">
     <a href="silhouette.html">View Silhouette Trace Animation</a>
   </p> -->
- <h1>Plus-Size Fashion Analysis</h1>
-  <!-- Your existing CSS and scripts -->
-</head>
+  <h1>Plus-Size Fashion Analysis</h1>
 
   <!-- Intro paragraph added at the very top -->
   <section id="intro" style="padding: 20px; background-color: #f9f9f9;">
@@ -25,6 +55,7 @@
       Despite the endless outcry online with many news articles focusing on the lack of options, little data illustrates just how inferior the offerings made to plus-size women are compared to their thinner counterparts. I cataloged the number of silhouettes, colorways, and design details available in plus-size versus standard-size ranges across Barcelona-based brand Mango, which has a sizeable presence in the US shopping market.
     </p>
   </section>
+
   <h2>All dresses available for plus sized women</h2>
   <button id="toggle-plus">View Products</button>
   <div id="carousel" class="carousel"></div>
@@ -48,5 +79,190 @@
   <script src="js/carousel_variety_regular.js"></script>
   <script src="js/analysis.js"></script>
 
+  <!-- ===== Chart Section ===== -->
+  <h2 class="chart-title">Descriptor Term Frequencies by Category</h2>
+  <div class="controls">
+    <label>
+      Category:
+      <select id="categorySelect"></select>
+    </label>
+    <label>
+      <input type="checkbox" id="normalizeToggle">
+      Show as % of total
+    </label>
+  </div>
+  <canvas id="barChart" width="900" height="500"></canvas>
+  <!-- ===== End Chart Section ===== -->
+
+  <!-- Chart Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      let freqReg = null, freqPlus = null;
+      const regularItemCount = 97;
+      const plusItemCount    = 77;
+
+      function getFreq(descs) {
+        const stops = new Set([
+          'the','and','of','with','for','that','this','from','are','but','not',
+          'you','all','has','have','its','in','on','as','to','it','a','an','is'
+        ]);
+        return descs.reduce((f, txt) => {
+          (txt.toLowerCase().match(/\b\w+\b/g) || []).forEach(w => {
+            if (w.length > 2 && !stops.has(w)) {
+              f[w] = (f[w] || 0) + 1;
+            }
+          });
+          return f;
+        }, {});
+      }
+
+      const synonymsMap = {
+        asymmetric:    ['asymmetric','asymmetrical'],
+        fit:           ['fit','fitted'],
+        zip:           ['zip','zipper'],
+        button:        ['button','buttoned','buttons'],
+        sleeve:        ['sleeve','sleeves'],
+        strap:         ['strap','straps'],
+        knit:          ['knit','knitted'],
+        lightweight:   ['light','lightweight'],
+        pattern:       ['pattern','patterned'],
+        print:         ['print','printed'],
+        embroidery:    ['embroidery','embroidered'],
+        texture:       ['texture','textured'],
+        mirror:        ['mirror','mirrors'],
+        feather:       ['feather','feathers'],
+        elegant:       ['elegant','elegance'],
+        sophisticated: ['sophisticated','sophistication']
+      };
+
+      const categoryMap = {
+        "Silhouette & Fit": [
+          'asymmetric','straight','fit','flared','flowy','fluid','slim',
+          'bubble','draped','wrap','peplum','dart','gathered'
+        ],
+        "Length": [
+          'short','long','midi','maxi','mini','quarter','medium'
+        ],
+        "Neckline & Collar": [
+          'neckline','vneck','collar','turtleneck','halter','lapel',
+          'boat','round','square','polo','perkins','welt'
+        ],
+        "Sleeves & Straps": [
+          'sleeve','sleeveless','strap','strapless'
+        ],
+        "Closures & Accessories": [
+          'closure','zip','buckle','button','fastening','tie','knot',
+          'belt','bow'
+        ],
+        "Materials & Properties": [
+          'cotton','knit','blend','linen','denim','chiffon','lyocell',
+          'satin','tweed','crochet','elastic','stretch','lightweight',
+          'metal','lace','lining','unlined'
+        ],
+        "Pattern & Print": [
+          'pattern','print','floral','animal','leopard','zebra','ostrich',
+          'pinstripe','striped'
+        ],
+        "Embellishment & Detail": [
+          'appliques','embellishments','embroidery','decorative','ruffle',
+          'frill','scalloped','patch','pleats','flounce','runched','frayed',
+          'texture','ornament','mirror','sequin','sparkly','shine','dazzle',
+          'ribbon','trim'
+        ],
+        "Styling & Occasion": [
+          'party','collection','ceremony','wedding','capsule','fun','elegant',
+          'sophisticated','fine','bold','special','modern'
+        ],
+        "Functional Features": [
+          'pockets','slits'
+        ]
+      };
+
+      function tryInit() {
+        if (freqReg && freqPlus) initChart();
+      }
+
+      Papa.parse('regular_product_data_mango.csv', {
+        download: true, header: true, skipEmptyLines: true,
+        complete: res => {
+          freqReg = getFreq(res.data.map(r => r.Description || ''));
+          tryInit();
+        }
+      });
+      Papa.parse('plus_product_data_mango.csv', {
+        download: true, header: true, skipEmptyLines: true,
+        complete: res => {
+          freqPlus = getFreq(res.data.map(r => r.Description || ''));
+          tryInit();
+        }
+      });
+
+      function initChart() {
+        const sel = document.getElementById('categorySelect');
+        Object.keys(categoryMap).forEach(cat => {
+          const o = document.createElement('option');
+          o.value = cat; o.textContent = cat;
+          sel.appendChild(o);
+        });
+
+        const ctx = document.getElementById('barChart').getContext('2d');
+        const chart = new Chart(ctx, {
+          type: 'bar',
+          data: { labels: [], datasets: [
+            { label: 'Regular', backgroundColor: 'rgba(54,162,235,0.6)', data: [] },
+            { label: 'Plus',    backgroundColor: 'rgba(255,99,132,0.6)', data: [] }
+          ]},
+          options: {
+            responsive: true,
+            scales: {
+              x: { stacked: false, ticks: { autoSkip: false, maxRotation: 90 } },
+              y: { beginAtZero: true, title: { display: true, text: 'Count' } }
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}`
+                }
+              },
+              legend: { position: 'top' }
+            }
+          }
+        });
+
+        function updateChart() {
+          const cat = sel.value;
+          const norm = document.getElementById('normalizeToggle').checked;
+          const terms = categoryMap[cat];
+          const labs = [], regD = [], plusD = [];
+
+          terms.forEach(c => {
+            const syns = synonymsMap[c] || [c];
+            let rSum = 0, pSum = 0;
+            syns.forEach(w => {
+              rSum += (freqReg[w] || 0);
+              pSum += (freqPlus[w] || 0);
+            });
+            labs.push(c);
+            regD.push(norm ? +(rSum/regularItemCount).toFixed(2) : rSum);
+            plusD.push(norm ? +(pSum/plusItemCount).toFixed(2) : pSum);
+          });
+
+          chart.data.labels = labs;
+          chart.data.datasets[0].data = regD;
+          chart.data.datasets[1].data = plusD;
+          chart.options.scales.y.title.text = norm ? '% of items' : 'Count';
+          chart.update();
+        }
+
+        sel.addEventListener('change', updateChart);
+        document.getElementById('normalizeToggle').addEventListener('change', updateChart);
+
+        sel.value = Object.keys(categoryMap)[0];
+        updateChart();
+      }
+    });
+  </script>
 </body>
 </html>
