@@ -4,73 +4,11 @@
     <meta charset="UTF-8">
     <title>Fashion's Forgotten Figures</title>
     <link rel="stylesheet" href="css/styles_json.css">
-    <style>
-      /* ===== Chart Styles ===== */
-      .controls {
-        display: flex;
-        gap: 20px;
-        align-items: center;
-        margin: 40px 0 20px;
-      }
-      .controls label {
-        font-weight: bold;
-        font-size: 0.95rem;
-      }
-      .controls select,
-      .controls input {
-        margin-left: 8px;
-        padding: 4px 8px;
-      }
-      #barChart {
-        max-width: 900px;
-        margin: 0 auto 60px;
-        background: #fff;
-        border-radius: 6px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      }
-      h2.chart-title {
-        text-align: left;
-        margin-top: 60px;
-        font-family: sans-serif;
-        color: #333;
-      }
-
-      /* ===== Silhouette Trace Styles ===== */
-      .sil-stack-wrapper {
-        display: flex;
-        justify-content: center;
-        gap: 2em;
-        flex-wrap: wrap;
-        margin: 2em 0;
-      }
-      figure {
-        margin: 0;
-        text-align: center;
-      }
-      .stack-container {
-        position: relative;
-        width: 300px;
-        height: 400px;
-        border: 1px solid #ddd;
-        overflow: hidden;
-      }
-      .stack-container svg {
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%;
-        height: auto;
-      }
-      figcaption {
-        font-size: 0.8em;
-        color: #666;
-        margin-top: 0.5em;
-      }
-    </style>
   </head>
   <body>
     
   <div class="container">
-    <h1>The Inferior Clothing Choices Offered to Larger Women</h1>
+    <h1>The Inferior Clothing Choices Offered<br> to Larger Women</h1>
 
     <section id="intro" style="padding:20px; background-color:#f9f9f9;">
       <p>Larger women lament across social media threads, blog posts, and YouTube videos on the scarcity of stylish, well-fitting pieces in larger sizes. Many brands don’t even carry larger sizes and when they do they’re the same garish, tacky and tasteless clothes.</p>
@@ -105,7 +43,10 @@
         <figcaption>Outlines of models</figcaption>
       </figure>
       
+
     </div>
+      <button id="replay-silhouette" class="replay-button">Replay Animation</button>
+
          <div class="container">
 
     <p>It reveals the brand's opinion on who is allowed to show skin.</p>
@@ -341,6 +282,12 @@
       // ===== Silhouette‐trace intersection & animation =====
       const DRAW_DURATION = 800, DELAY_BETWEEN = 200;
       const STROKE_COLOR  = 'blue', STROKE_WIDTH = 4;
+document.getElementById("replay-silhouette").addEventListener("click", () => {
+  document.getElementById('container-outlines').innerHTML = '';
+  document.getElementById('container-people').innerHTML = '';
+  buildStack('outlines_svg.json', 'outlines_svg', 'container-outlines');
+  buildStack('people_svg.json', 'people_svg', 'container-people');
+});
 
       async function loadManifest(path) {
         const res = await fetch(path);
@@ -389,6 +336,7 @@
           }
         }, { threshold: 0.2 }).observe(wrap);
       });
+      
     </script>
      
   </body>
