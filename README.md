@@ -14,13 +14,17 @@ I initially used Playwright for both lazy loading and scraping product links, wh
 
 In the future, I plan to ensure most of my data is ready before coding. Only small design snippets will be developed to check if my vision is translating well before data adjustments.
 
-#### Scraping logic
+---
 
-I specifically scraped for the 493-width image URL. Mango duplicates images in various sizes, from width 100 to 2048. After examining the quality of each, 493 was a good compromise in terms of quality and load speed — important since the site features many images.
+### Scraping logic
+
+I specifically scraped for the `493-width` image URL. Mango duplicates images in various sizes, from width 100 to 2048. After examining the quality of each, 493 was a good compromise in terms of quality and load speed — important since the site features many images.
 
 While I could approximate where the regular-sized model image appeared in slideshows (usually second), there was no pattern for the plus-size model. As a result, plus-size carousel images were manually added to the JSON file. The plus-size product was usually the second last image, but sometimes this image was a close-up detail. This explains why some “view products” clicks show a close-up instead of the full dress — something I plan to fix in a future polished version.
 
-#### Concurrency
+--- 
+
+### Concurrency
 
 My initial Playwright script was slow, taking about 9–14 minutes per scrape. Implementing concurrency (using workers) sped this up dramatically — each category could be scraped in under a minute. This was an exciting moment: I finally saw theoretical concepts from my operating systems course in action, making it one of the most delightful parts of the process.
 
@@ -34,7 +38,7 @@ I converted images to grayscale using `cv2` to focus on outlines rather than RGB
 
 `cv2.Canny` helped extract dress boundaries but produced PNG outlines. To animate paths, I needed vectors.
 
-Using ImageMagick, I converted PNG masks into PBM format (required by Potrace). Potrace then converted PBMs into SVGs. I batch-processed these using CLI tools, then converted SVGs into JSON (via a manifest file).  
+Using `ImageMagick`, I converted PNG masks into PBM format (required by `Potrace`). Potrace then converted PBMs into SVGs. I batch-processed these using CLI tools, then converted SVGs into JSON (via a manifest file).  
 
 I used the `<path>` element to trace SVGs and animate them, staggering animation starts by multiplying each image’s index by a fixed delay. Because all outlines shared the same (0,0) origin, they stacked neatly.
 
