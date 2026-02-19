@@ -1,3 +1,11 @@
+/* Center annotation container under carousel */
+.annotation-container-variety {
+  max-width: var(--carousel-max-width);
+  margin: 0 auto 20px auto;
+  padding-left: var(--carousel-padding);
+  padding-right: var(--carousel-padding);
+  box-sizing: content-box;
+}
 :root {
   --slice-width:      50px;
   --strip-height:     200px;
